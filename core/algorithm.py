@@ -121,8 +121,7 @@ class NeedlemanWunsch:
     def find_all_optimal_paths(self, i, j, path=None, paths=None, max_paths=10):
         """Recursively finds all optimal alignment paths through the score matrix.
 
-        The number of optimal paths can grow exponentially with sequence length. For two
-        sequences of length n, there can be O(2^n) optimal paths in the worst case.
+        The number of optimal paths can grow exponentially with sequence length.
         To maintain reasonable performance, we limit the search to max_paths (default: 10).
 
         Example:
