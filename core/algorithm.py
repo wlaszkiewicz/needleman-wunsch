@@ -149,8 +149,6 @@ class NeedlemanWunsch:
             path = []
 
         # Early termination to prevent combinatorial explosion
-        # For sequences of length N, there can be C(N) optimal paths where:
-        # C(N) ~ 4^N/(N^(3/2)*sqrt(π)) [Catalan number asymptotic growth]
         if len(paths) >= max_paths:
             return
 
