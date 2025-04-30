@@ -44,16 +44,13 @@ class MatrixTab(QWidget):
         self.prev_btn.clicked.connect(self.show_previous_path)
         self.next_btn.clicked.connect(self.show_next_path)
 
-        # Save button
         self.save_plot_btn = QPushButton("Save Plot as Image")
         self.save_plot_btn.clicked.connect(self.save_plot)
-
 
         self.layout.addWidget(nav_container)
         self.layout.addWidget(self.matrix_canvas, 1)
         self.layout.addWidget(self.save_plot_btn)
 
-        # Button states
         self.prev_btn.setEnabled(False)
         self.next_btn.setEnabled(False)
 
@@ -90,7 +87,6 @@ class MatrixTab(QWidget):
                 f"Path {self.current_path_index + 1} of {len(self.matrix_canvas.all_paths)}"
             )
 
-            # Update button states based on current position
             self.prev_btn.setEnabled(self.current_path_index > 0)
             self.next_btn.setEnabled(
                 self.current_path_index < len(self.matrix_canvas.all_paths) - 1
@@ -108,13 +104,13 @@ class MatrixTab(QWidget):
         self.current_path_index = 0
 
         if paths:
-            # Initialize UI for path navigation
+
             self.prev_btn.setEnabled(False)
             self.next_btn.setEnabled(len(paths) > 1)
             self.path_label.setText(f"Path 1 of {len(paths)}")
             self.update_path_display()
         else:
-            # Handle case with no paths
+
             self.path_label.setText("No paths available")
             self.prev_btn.setEnabled(False)
             self.next_btn.setEnabled(False)

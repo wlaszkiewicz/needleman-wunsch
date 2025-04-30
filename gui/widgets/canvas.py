@@ -63,7 +63,7 @@ class ScoreMatrixCanvas(FigureCanvas):
         matrix = nw.score_matrix
         rows, cols = matrix.shape
 
-        # ========== Sequence Character Labels ==========
+
         # Place sequence 1 characters vertically (y-axis)
         for i, char in enumerate(seq1):
             self.ax.text(
@@ -116,7 +116,7 @@ class ScoreMatrixCanvas(FigureCanvas):
                         x1 + 0.5, y1 + 0.5,
                         dx * arrow_length, dy * arrow_length,
                         head_width=0.3, head_length=0.2,
-                        fc='#80577e', ec='#80577e'  # Purple color
+                        fc='#80577e', ec='#80577e'
                     )
                 # Vertical move (gap in seq2)
                 elif dy != 0:
@@ -124,7 +124,7 @@ class ScoreMatrixCanvas(FigureCanvas):
                         x1 + 0.5, y1 + 0.5,
                         0, dy * arrow_length,
                         head_width=0.3, head_length=0.2,
-                        fc='#424b66', ec='#424b66'  # Dark blue
+                        fc='#424b66', ec='#424b66'
                     )
                 # Horizontal move (gap in seq1)
                 else:
@@ -132,13 +132,12 @@ class ScoreMatrixCanvas(FigureCanvas):
                         x1 + 0.5, y1 + 0.5,
                         dx * arrow_length, 0,
                         head_width=0.3, head_length=0.2,
-                        fc='#424b66', ec='#424b66'  # Dark blue
+                        fc='#424b66', ec='#424b66'
                     )
 
 
-        # Axis limits with padding
         self.ax.set_xlim(-0.5, cols + 0.5)
-        self.ax.set_ylim(rows + 0.5, -0.5)  # Inverted y-axis for matrix convention
+        self.ax.set_ylim(rows + 0.5, -0.5)
 
         # Grid lines between cells
         for i in range(rows + 1):
@@ -150,7 +149,6 @@ class ScoreMatrixCanvas(FigureCanvas):
         self.ax.set_xticks([])
         self.ax.set_yticks([])
 
-        #Labels and Titles
         self.ax.set_title(
             f'Score Matrix ({nw.seq_type.upper()})',
             pad=20, fontsize=16, fontweight='bold'
@@ -190,9 +188,9 @@ class ScoreMatrixCanvas(FigureCanvas):
         self.ax.legend(
             handles=legend_elements,
             loc='upper right',
-            bbox_to_anchor=(1.3, 1),  # Position outside plot
+            bbox_to_anchor=(1.3, 1),
             fontsize=16
         )
 
-        self.fig.tight_layout(rect=[0, 0, 0.98, 1])  # Leave space for legend
+        self.fig.tight_layout(rect=[0, 0, 0.98, 1])
         self.draw()

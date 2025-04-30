@@ -110,7 +110,7 @@ class MainWindow(QMainWindow):
         self.results_tab.save_btn.clicked.connect(self.save_results)
         self.tabs.addTab(self.results_tab, "Alignment Results")
 
-        # Matrix visualization tab (imported locally to avoid circular imports)
+        # Matrix visualization tab
         from gui.widgets.matrix_tab import MatrixTab
         self.matrix_tab = MatrixTab()
         self.tabs.addTab(self.matrix_tab, "Score Matrix")
@@ -119,7 +119,6 @@ class MainWindow(QMainWindow):
         main_widget.setLayout(main_layout)
         self.setCentralWidget(main_widget)
 
-        # Connect signals to slots
         self.align_btn.clicked.connect(self.perform_alignment)
         self.load_seq1_btn.clicked.connect(lambda: self.load_fasta(1))
         self.load_seq2_btn.clicked.connect(lambda: self.load_fasta(2))
@@ -227,7 +226,6 @@ class MainWindow(QMainWindow):
         if not self.validate_input():
             return
 
-        # Configure alignment parameters
         self.nw = NeedlemanWunsch(
             match_score=self.match_score.value(),
             mismatch_penalty=self.mismatch_penalty.value(),
@@ -235,7 +233,6 @@ class MainWindow(QMainWindow):
         )
 
         try:
-            # Set sequences and perform alignment
             self.nw.set_sequences(
                 self.seq1_input.text().strip(),
                 self.seq2_input.text().strip(),
@@ -245,7 +242,6 @@ class MainWindow(QMainWindow):
             results = self.nw.align()
             self.display_results(results)
 
-            # Visualize paths in matrix tab if available
             if self.nw.alignment_paths:
                 self.matrix_tab.plot_all_paths(
                     self.nw,
@@ -292,11 +288,9 @@ class MainWindow(QMainWindow):
             ""
         ]
 
-        # Format alignment examples
         if results['examples']:
             output.append("=== Example Alignments ===")
             for i, (align1, align2, symbols) in enumerate(results['examples'][:10], 1):
-                # Split long alignments into chunks for better readability
                 chunk_size = 100
                 chunks = [
                     (

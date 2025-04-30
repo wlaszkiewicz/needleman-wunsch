@@ -24,19 +24,16 @@ class AlignmentResultsTab(QWidget):
         super().__init__(parent)
         self.layout = QVBoxLayout(self)
 
-        # Configure the text display area
         self.results_text = QTextEdit()
-        self.results_text.setReadOnly(True)  # Make non-editable
-        self.results_text.setFontFamily("Consolas")  # Monospace font for alignment formatting
+        self.results_text.setReadOnly(True)
+        self.results_text.setFontFamily("Consolas")
 
-        # Set up scrolling container
+
         self.scroll = QScrollArea()
-        self.scroll.setWidgetResizable(True)  # Allow text area to expand
-        self.scroll.setWidget(self.results_text)  # Nest the text display
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setWidget(self.results_text)
 
-        # Add export capability
         self.save_btn = QPushButton("Save Results to File")
 
-        # Assemble the layout
-        self.layout.addWidget(self.scroll)  # Scrollable text area takes most space
-        self.layout.addWidget(self.save_btn)  # Save button at bottom
+        self.layout.addWidget(self.scroll)
+        self.layout.addWidget(self.save_btn)

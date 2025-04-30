@@ -101,7 +101,7 @@ class NeedlemanWunsch:
         for j in range(len2 + 1):
             self.score_matrix[0][j] = j * self.gap_penalty
 
-        # Fill the score matrix using dynamic programming
+        # Fill the score matrix
         for i in range(1, len1 + 1):
             for j in range(1, len2 + 1):
                 # Calculate scores for three possible moves:
@@ -160,7 +160,7 @@ class NeedlemanWunsch:
             self.total_optimal_paths = len(paths)
             return
 
-        # Recursive case: explore valid moves (continuations of current path)
+        # Recursive case: explore valid moves
         current_score = self.score_matrix[i][j]
         possible_moves = []
 
@@ -252,7 +252,6 @@ class NeedlemanWunsch:
                 'seq_type': self.seq_type
             }
 
-        # Calculate alignment statistics from first example
         example = self.alignment_examples[0]
         aligned_length = len(example[0])
         matches = example[2].count('|')
