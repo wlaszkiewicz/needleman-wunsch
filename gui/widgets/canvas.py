@@ -2,20 +2,59 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.lines import Line2D
 
+
 class ScoreMatrixCanvas(FigureCanvas):
+    """Interactive visualization of the Needleman-Wunsch score matrix with path tracing.
+
+    This widget displays:
+    - The dynamic programming score matrix
+    - Sequence characters along axes
+    - Optimal alignment path(s) with directional arrows
+    - Visual distinction between match/mismatch and gap operations
+
+    Attributes:
+        fig (Figure): The matplotlib Figure object
+        ax (Axes): The matplotlib Axes object
+        nw (NeedlemanWunsch): Reference to alignment algorithm
+        path (list): Current path being displayed
+        all_paths (list): All available optimal paths
+    """
+
     def __init__(self, parent=None, width=8, height=8, dpi=100):
+        """Initializes the matrix visualization canvas.
+
+        Args:
+            parent (QWidget, optional): Parent widget. Defaults to None.
+            width (int, optional): Figure width in inches. Defaults to 8.
+            height (int, optional): Figure height in inches. Defaults to 8.
+            dpi (int, optional): Dots per inch. Defaults to 100.
+        """
         self.fig, self.ax = plt.subplots(figsize=(width, height), dpi=dpi)
         super().__init__(self.fig)
         self.setParent(parent)
-        self.nw = None
-        self.path = None
-        self.all_paths = []
+        self.nw = None  # NeedlemanWunsch instance
+        self.path = None  # Current path being visualized
+        self.all_paths = []  # All optimal paths found
 
     def plot_matrix(self, nw, path=None):
+        """Plots the score matrix with optional path highlighting.
+
+        Args:
+            nw (NeedlemanWunsch): Configured alignment algorithm instance
+            path (list, optional): Specific path to highlight. Defaults to None.
+
+        The visualization includes:
+        1. Score matrix cells with values
+        2. Sequence characters along axes
+        3. Highlighted path (if provided)
+        4. Directional arrows showing alignment moves
+        5. Professional styling and annotations
+        """
         self.nw = nw
         self.path = path or []
         self.ax.clear()
 
+        # Early return if no valid matrix
         if not nw or not nw.score_matrix.any():
             return
 
@@ -24,82 +63,136 @@ class ScoreMatrixCanvas(FigureCanvas):
         matrix = nw.score_matrix
         rows, cols = matrix.shape
 
-        # Draw sequence characters
+        # ========== Sequence Character Labels ==========
+        # Place sequence 1 characters vertically (y-axis)
         for i, char in enumerate(seq1):
-            self.ax.text(0, i + 2, char, ha='center', va='center',
-                         fontsize=14, fontweight='bold')
-        for j, char in enumerate(seq2):
-            self.ax.text(j + 2, 0, char, ha='center', va='center',
-                         fontsize=14, fontweight='bold')
+            self.ax.text(
+                0, i + 2, char,
+                ha='center', va='center',
+                fontsize=14, fontweight='bold'
+            )
 
-        # Draw matrix cells
+        # Place sequence 2 characters horizontally (x-axis)
+        for j, char in enumerate(seq2):
+            self.ax.text(
+                j + 2, 0, char,
+                ha='center', va='center',
+                fontsize=14, fontweight='bold'
+            )
+
+        #Matrix Cells
         for i in range(rows):
             for j in range(cols):
+                # Highlight cells in current path
                 if (i, j) in self.path:
-                    rect = plt.Rectangle((j + 0.5, i + 0.5), 1, 1,
-                                         facecolor='lightblue', alpha=0.6)
+                    rect = plt.Rectangle(
+                        (j + 0.5, i + 0.5), 1, 1,
+                        facecolor='lightblue', alpha=0.6
+                    )
                     self.ax.add_patch(rect)
 
-                self.ax.text(j + 1, i + 1, f"{matrix[i, j]}",
-                             ha='center', va='center',
-                             color='black', fontsize=14)
+                # Display score value
+                self.ax.text(
+                    j + 1, i + 1, f"{matrix[i, j]}",
+                    ha='center', va='center',
+                    color='black', fontsize=14
+                )
 
-        # Draw path arrows
+        #Path Arrows
         if len(self.path) > 1:
             for k in range(len(self.path) - 1):
                 i1, j1 = self.path[k]
                 i2, j2 = self.path[k + 1]
 
-                x1, y1 = j1 + 1, i1 + 1
-                x2, y2 = j2 + 1, i2 + 1
-
+                # Calculate arrow positions
+                x1, y1 = j1 + 1, i1 + 1  # Start point (center of cell)
+                x2, y2 = j2 + 1, i2 + 1  # End point
                 dx, dy = x2 - x1, y2 - y1
-                arrow_length = 0.7
+                arrow_length = 0.7  # Fraction of cell size
 
-                if dx != 0 and dy != 0:  # Diagonal
-                    self.ax.arrow(x1 + 0.5, y1 + 0.5, dx * arrow_length, dy * arrow_length,
-                                  head_width=0.3, head_length=0.2,
-                                  fc='#80577e', ec='#80577e')
-                elif dy != 0:  # Vertical
-                    self.ax.arrow(x1 + 0.5, y1 + 0.5, 0, dy * arrow_length,
-                                  head_width=0.3, head_length=0.2,
-                                  fc='#424b66', ec='#424b66')
-                else:  # Horizontal
-                    self.ax.arrow(x1 + 0.5, y1 + 0.5, dx * arrow_length, 0,
-                                  head_width=0.3, head_length=0.2,
-                                  fc='#424b66', ec='#424b66')
+                # Diagonal move (match/mismatch)
+                if dx != 0 and dy != 0:
+                    self.ax.arrow(
+                        x1 + 0.5, y1 + 0.5,
+                        dx * arrow_length, dy * arrow_length,
+                        head_width=0.3, head_length=0.2,
+                        fc='#80577e', ec='#80577e'  # Purple color
+                    )
+                # Vertical move (gap in seq2)
+                elif dy != 0:
+                    self.ax.arrow(
+                        x1 + 0.5, y1 + 0.5,
+                        0, dy * arrow_length,
+                        head_width=0.3, head_length=0.2,
+                        fc='#424b66', ec='#424b66'  # Dark blue
+                    )
+                # Horizontal move (gap in seq1)
+                else:
+                    self.ax.arrow(
+                        x1 + 0.5, y1 + 0.5,
+                        dx * arrow_length, 0,
+                        head_width=0.3, head_length=0.2,
+                        fc='#424b66', ec='#424b66'  # Dark blue
+                    )
 
-        # Configure axes and appearance
+
+        # Axis limits with padding
         self.ax.set_xlim(-0.5, cols + 0.5)
-        self.ax.set_ylim(rows + 0.5, -0.5)  # Inverted y-axis
+        self.ax.set_ylim(rows + 0.5, -0.5)  # Inverted y-axis for matrix convention
 
+        # Grid lines between cells
         for i in range(rows + 1):
             self.ax.axhline(i - 0.5, color='gray', linewidth=0.5)
         for j in range(cols + 1):
             self.ax.axvline(j - 0.5, color='gray', linewidth=0.5)
 
+        # Remove default ticks
         self.ax.set_xticks([])
         self.ax.set_yticks([])
 
-        # Add title and labels
-        self.ax.set_title(f'Score Matrix ({nw.seq_type.upper()})',
-                          pad=20, fontsize=16, fontweight='bold')
+        #Labels and Titles
+        self.ax.set_title(
+            f'Score Matrix ({nw.seq_type.upper()})',
+            pad=20, fontsize=16, fontweight='bold'
+        )
+
+        self.ax.xaxis.set_label_position('top')
         self.ax.set_xlabel('Sequence 2', fontsize=14, labelpad=10)
         self.ax.set_ylabel('Sequence 1', fontsize=14, labelpad=10)
 
-        # Add legend
+        #Legend
         legend_elements = [
-            Line2D([0], [0], marker='$\u2198$', color='#80577e', label='Match/Mismatch',
-                   markersize=16, linestyle='None'),
-            Line2D([0], [0], marker='$\u2193$', color='#424b66', label='Gap in Seq2',
-                   markersize=16, linestyle='None'),
-            Line2D([0], [0], marker='$\u2192$', color='#424b66', label='Gap in Seq1',
-                   markersize=16, linestyle='None')
+            # Diagonal arrow (match/mismatch)
+            Line2D([0], [0],
+                   marker='$\u2198$',  # South-east arrow
+                   color='#80577e',
+                   label='Match/Mismatch',
+                   markersize=16,
+                   linestyle='None'),
+
+            # Down arrow (gap in seq2)
+            Line2D([0], [0],
+                   marker='$\u2193$',  # Down arrow
+                   color='#424b66',
+                   label='Gap in Seq2',
+                   markersize=16,
+                   linestyle='None'),
+
+            # Right arrow (gap in seq1)
+            Line2D([0], [0],
+                   marker='$\u2192$',  # Right arrow
+                   color='#424b66',
+                   label='Gap in Seq1',
+                   markersize=16,
+                   linestyle='None')
         ]
-        self.ax.legend(handles=legend_elements, loc='upper right',
-                       bbox_to_anchor=(1.3, 1), fontsize=16)
 
+        self.ax.legend(
+            handles=legend_elements,
+            loc='upper right',
+            bbox_to_anchor=(1.3, 1),  # Position outside plot
+            fontsize=16
+        )
 
-
-        self.fig.tight_layout(rect=[0, 0, 0.98, 1])
+        self.fig.tight_layout(rect=[0, 0, 0.98, 1])  # Leave space for legend
         self.draw()
